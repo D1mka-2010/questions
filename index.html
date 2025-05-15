@@ -1,501 +1,55 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Тест обо мне</title>
+    <title>Google Vision (GOOD UI)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        :root {
-            --primary: #6C5CE7;
-            --secondary: #A29BFE;
-            --accent: #FD79A8;
-            --text: #2D3436;
-            --light: #F5F6FA;
-            --correct: #00B894;
-            --incorrect: #D63031;
-        }
-        
-        * {
-            box-sizing: border-box;
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #f5f5f5;
             margin: 0;
             padding: 0;
+            color: #333;
         }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--light);
-            color: var(--text);
-            line-height: 1.6;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        header {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        .header {
+            background: #4285F4;
             color: white;
-            padding: 1.5rem;
+            padding: 16px;
             text-align: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-        
-        .container {
-            max-width: 800px;
-            margin: 2rem auto;
-            padding: 0 1rem;
-            flex: 1;
-        }
-        
-        .quiz-container, .results-container {
+        .card {
             background: white;
-            border-radius: 16px;
-            padding: 2rem;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-            margin-bottom: 2rem;
-            display: none;
-        }
-        
-        .quiz-container.active, .results-container.active {
-            display: block;
-            animation: fadeIn 0.5s ease;
-        }
-        
-        .question {
-            margin-bottom: 2rem;
-        }
-        
-        .question h2 {
-            color: var(--primary);
-            margin-bottom: 1rem;
-            font-size: 1.5rem;
-        }
-        
-        .options {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1rem;
-        }
-        
-        .option {
-            background: var(--light);
-            border: 2px solid #dfe6e9;
             border-radius: 12px;
-            padding: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 1.1rem;
+            margin: 16px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
         }
-        
-        .option:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
-            border-color: var(--secondary);
+        .card:hover {
+            transform: translateY(-5px);
         }
-        
-        .option.selected {
-            background: var(--secondary);
-            color: white;
-            border-color: var(--primary);
-        }
-        
-        .navigation {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 2rem;
-        }
-        
-        button {
-            background: var(--primary);
+        .btn {
+            background: #4285F4;
             color: white;
             border: none;
-            padding: 0.8rem 1.5rem;
-            border-radius: 50px;
+            padding: 12px 24px;
+            border-radius: 24px;
+            font-weight: bold;
             cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(108, 92, 231, 0.3);
-        }
-        
-        button:hover {
-            background: var(--secondary);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(108, 92, 231, 0.4);
-        }
-        
-        button:disabled {
-            background: #b2bec3;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-        
-        .progress-bar {
-            height: 8px;
-            background: #dfe6e9;
-            border-radius: 4px;
-            margin-bottom: 2rem;
-            overflow: hidden;
-        }
-        
-        .progress {
-            height: 100%;
-            background: linear-gradient(90deg, var(--secondary), var(--primary));
-            width: 0%;
-            transition: width 0.5s ease;
-        }
-        
-        .results-container h2 {
-            color: var(--primary);
-            text-align: center;
-            margin-bottom: 1.5rem;
-        }
-        
-        .result-item {
-            padding: 1.5rem;
-            border-radius: 12px;
-            margin-bottom: 1rem;
-            background: var(--light);
-        }
-        
-        .result-item.correct {
-            border-left: 6px solid var(--correct);
-        }
-        
-        .result-item.incorrect {
-            border-left: 6px solid var(--incorrect);
-        }
-        
-        .result-question {
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-        
-        .result-answer {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.5rem;
-        }
-        
-        .result-correct {
-            color: var(--correct);
-            font-weight: 600;
-        }
-        
-        .result-incorrect {
-            color: var(--incorrect);
-            font-weight: 600;
-        }
-        
-        .score {
-            text-align: center;
-            font-size: 1.5rem;
-            margin: 1.5rem 0;
-            font-weight: 700;
-        }
-        
-        .score-value {
-            color: var(--primary);
-            font-size: 2rem;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        footer {
-            text-align: center;
-            padding: 1.5rem;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            margin-top: auto;
+            width: 100%;
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Тест обо мне</h1>
-    </header>
-    
-    <div class="container">
-        <div class="progress-bar">
-            <div class="progress" id="progress"></div>
-        </div>
-        
-        <!-- Вопрос 1 -->
-        <div class="quiz-container active" id="question1">
-            <div class="question">
-                <h2>Когда у меня день рождения?</h2>
-                <div class="options">
-                    <div class="option" onclick="selectOption(this, 'q1')">11 марта</div>
-                    <div class="option" onclick="selectOption(this, 'q1')">4 декабря</div>
-                    <div class="option" onclick="selectOption(this, 'q1')">6 августа</div>
-                    <div class="option" onclick="selectOption(this, 'q1')">25 октября</div>
-                </div>
-            </div>
-            <div class="navigation">
-                <button disabled>Назад</button>
-                <button id="next1" onclick="nextQuestion()" disabled>Далее</button>
-            </div>
-        </div>
-        
-        <!-- Вопрос 2 -->
-        <div class="quiz-container" id="question2">
-            <div class="question">
-                <h2>Какому спорту я больше всего уделяю внимание?</h2>
-                <div class="options">
-                    <div class="option" onclick="selectOption(this, 'q2')">Спортивное ориентирование</div>
-                    <div class="option" onclick="selectOption(this, 'q2')">Каратэ</div>
-                    <div class="option" onclick="selectOption(this, 'q2')">Фигурное катание</div>
-                    <div class="option" onclick="selectOption(this, 'q2')">Нет правильного варианта</div>
-                </div>
-            </div>
-            <div class="navigation">
-                <button onclick="prevQuestion()">Назад</button>
-                <button id="next2" onclick="nextQuestion()" disabled>Далее</button>
-            </div>
-        </div>
-        
-        <!-- Вопрос 3 -->
-        <div class="quiz-container" id="question3">
-            <div class="question">
-                <h2>Как зовут моего брата?</h2>
-                <div class="options">
-                    <div class="option" onclick="selectOption(this, 'q3')">Дима</div>
-                    <div class="option" onclick="selectOption(this, 'q3')">Тимофей</div>
-                    <div class="option" onclick="selectOption(this, 'q3')">Антон</div>
-                    <div class="option" onclick="selectOption(this, 'q3')">Ваня</div>
-                </div>
-            </div>
-            <div class="navigation">
-                <button onclick="prevQuestion()">Назад</button>
-                <button id="next3" onclick="nextQuestion()" disabled>Далее</button>
-            </div>
-        </div>
-        
-        <!-- Вопрос 4 -->
-        <div class="quiz-container" id="question4">
-            <div class="question">
-                <h2>В каком я классе?</h2>
-                <div class="options">
-                    <div class="option" onclick="selectOption(this, 'q4')">5</div>
-                    <div class="option" onclick="selectOption(this, 'q4')">6</div>
-                    <div class="option" onclick="selectOption(this, 'q4')">7</div>
-                    <div class="option" onclick="selectOption(this, 'q4')">8</div>
-                </div>
-            </div>
-            <div class="navigation">
-                <button onclick="prevQuestion()">Назад</button>
-                <button id="next4" onclick="nextQuestion()" disabled>Далее</button>
-            </div>
-        </div>
-        
-        <!-- Вопрос 5 -->
-        <div class="quiz-container" id="question5">
-            <div class="question">
-                <h2>В каком городе я живу?</h2>
-                <div class="options">
-                    <div class="option" onclick="selectOption(this, 'q5')">Гомель</div>
-                    <div class="option" onclick="selectOption(this, 'q5')">Минск</div>
-                    <div class="option" onclick="selectOption(this, 'q5')">Москва</div>
-                    <div class="option" onclick="selectOption(this, 'q5')">Киев</div>
-                </div>
-            </div>
-            <div class="navigation">
-                <button onclick="prevQuestion()">Назад</button>
-                <button id="next5" onclick="nextQuestion()" disabled>Далее</button>
-            </div>
-        </div>
-        
-        <!-- Вопрос 6 -->
-        <div class="quiz-container" id="question6">
-            <div class="question">
-                <h2>Какой мой любимый город?</h2>
-                <div class="options">
-                    <div class="option" onclick="selectOption(this, 'q6')">Минск</div>
-                    <div class="option" onclick="selectOption(this, 'q6')">Харьков</div>
-                    <div class="option" onclick="selectOption(this, 'q6')">Санкт-Петербург</div>
-                    <div class="option" onclick="selectOption(this, 'q6')">Москва</div>
-                </div>
-            </div>
-            <div class="navigation">
-                <button onclick="prevQuestion()">Назад</button>
-                <button id="showResult" onclick="showResults()">Показать результат</button>
-            </div>
-        </div>
-        
-        <!-- Страница результатов -->
-        <div class="results-container" id="results">
-            <h2>Ваши результаты</h2>
-            
-            <div class="score">
-                Правильных ответов: <span class="score-value" id="score">0</span> из 6
-            </div>
-            
-            <div id="result-items">
-                <!-- Результаты будут добавлены сюда -->
-            </div>
-            
-            <button onclick="restartQuiz()" style="display: block; margin: 0 auto;">Пройти тест снова</button>
-        </div>
+    <div class="header">
+        <h1>Google Vision</h1>
+        <p>Исследуйте мир с умным поиском</p>
     </div>
-    
-    <footer>
-        <p>© 2025 Тест обо мне. Все права защищены.</p>
-    </footer>
-
-    <script>
-        // Данные теста
-        const quizData = {
-            questions: [
-                {
-                    id: 'q1',
-                    question: 'Когда у меня день рождения?',
-                    options: ['11 марта', '4 декабря', '6 августа', '25 октября'],
-                    correct: '6 августа'
-                },
-                {
-                    id: 'q2',
-                    question: 'Какому спорту я больше всего уделяю внимание?',
-                    options: ['Спортивное ориентирование', 'Каратэ', 'Фигурное катание', 'Нет правильного варианта'],
-                    correct: 'Каратэ'
-                },
-                {
-                    id: 'q3',
-                    question: 'Как зовут моего брата?',
-                    options: ['Дима', 'Тимофей', 'Антон', 'Ваня'],
-                    correct: 'Антон'
-                },
-                {
-                    id: 'q4',
-                    question: 'В каком я классе?',
-                    options: ['5', '6', '7', '8'],
-                    correct: '8'
-                },
-                {
-                    id: 'q5',
-                    question: 'В каком городе я живу?',
-                    options: ['Гомель', 'Минск', 'Москва', 'Киев'],
-                    correct: 'Гомель'
-                },
-                {
-                    id: 'q6',
-                    question: 'Какой мой любимый город?',
-                    options: ['Минск', 'Харьков', 'Санкт-Петербург', 'Москва'],
-                    correct: 'Москва'
-                }
-            ],
-            answers: {}
-        };
-        
-        let currentQuestion = 1;
-        const totalQuestions = quizData.questions.length;
-        
-        // Инициализация теста
-        function initQuiz() {
-            updateProgress();
-        }
-        
-        // Выбор варианта ответа
-        function selectOption(element, questionId) {
-            // Убираем выделение у всех вариантов текущего вопроса
-            const container = element.closest('.question');
-            container.querySelectorAll('.option').forEach(opt => {
-                opt.classList.remove('selected');
-            });
-            
-            // Выделяем выбранный вариант
-            element.classList.add('selected');
-            quizData.answers[questionId] = element.textContent;
-            
-            // Активируем кнопку "Далее"
-            document.getElementById(`next${currentQuestion}`).disabled = false;
-        }
-        
-        // Переход к следующему вопросу
-        function nextQuestion() {
-            document.getElementById(`question${currentQuestion}`).classList.remove('active');
-            currentQuestion++;
-            document.getElementById(`question${currentQuestion}`).classList.add('active');
-            updateProgress();
-        }
-        
-        // Возврат к предыдущему вопросу
-        function prevQuestion() {
-            document.getElementById(`question${currentQuestion}`).classList.remove('active');
-            currentQuestion--;
-            document.getElementById(`question${currentQuestion}`).classList.add('active');
-            updateProgress();
-        }
-        
-        // Обновление прогресс-бара
-        function updateProgress() {
-            const progress = (currentQuestion / totalQuestions) * 100;
-            document.getElementById('progress').style.width = `${progress}%`;
-        }
-        
-        // Показ результатов
-        function showResults() {
-            // Скрываем вопросы и показываем результаты
-            document.getElementById(`question${currentQuestion}`).classList.remove('active');
-            document.getElementById('results').classList.add('active');
-            
-            // Считаем правильные ответы
-            let correctCount = 0;
-            const resultItemsContainer = document.getElementById('result-items');
-            resultItemsContainer.innerHTML = '';
-            
-            // Добавляем результаты по каждому вопросу
-            quizData.questions.forEach(q => {
-                const userAnswer = quizData.answers[q.id];
-                const isCorrect = userAnswer === q.correct;
-                
-                if (isCorrect) correctCount++;
-                
-                const resultItem = document.createElement('div');
-                resultItem.className = `result-item ${isCorrect ? 'correct' : 'incorrect'}`;
-                
-                resultItem.innerHTML = `
-                    <div class="result-question">${q.question}</div>
-                    <div class="result-answer">
-                        <span>Ваш ответ: <span class="${isCorrect ? 'result-correct' : 'result-incorrect'}">${userAnswer || 'Нет ответа'}</span></span>
-                        <span>Правильный ответ: ${q.correct}</span>
-                    </div>
-                `;
-                
-                resultItemsContainer.appendChild(resultItem);
-            });
-            
-            // Обновляем счет
-            document.getElementById('score').textContent = correctCount;
-        }
-        
-        // Перезапуск теста
-        function restartQuiz() {
-            // Сбрасываем ответы
-            quizData.answers = {};
-            
-            // Снимаем выделение со всех вариантов
-            document.querySelectorAll('.option').forEach(opt => {
-                opt.classList.remove('selected');
-            });
-            
-            // Деактивируем кнопки "Далее"
-            for (let i = 1; i <= totalQuestions; i++) {
-                const btn = document.getElementById(`next${i}`);
-                if (btn) btn.disabled = true;
-            }
-            
-            // Возвращаемся к первому вопросу
-            document.getElementById('results').classList.remove('active');
-            currentQuestion = 1;
-            document.getElementById('question1').classList.add('active');
-            updateProgress();
-        }
-        
-        // Запускаем тест при загрузке страницы
-        window.onload = initQuiz;
-    </script>
+    <div class="card">
+        <h2>Новое в Google Lens</h2>
+        <p>Наведите камеру на объект и узнайте о нём всё.</p>
+        <button class="btn">Попробовать</button>
+    </div>
 </body>
 </html>
